@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Show do Milhão - Quiz</title>
+  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap" rel="stylesheet"/>
+  <style>
+    body {
+      font-family: 'Luckiest Guy', cursive;
+      text-align: center;
+      background: linear-gradient(to bottom, #011f4b, #03396c);
+      color: white;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+    }
+    .hidden {
+      display: none !important;
+    }
+    .container button {
+      background-color: #d4aa00;
+      border: none;
+      padding: 15px 30px;
+      margin: 15px;
+      font-size: 1.5em;
+      font-weight: bold;
+      color: #011f4b;
+      border-radius: 15px;
+      cursor: pointer;
+      transition: transform 0.2s, background-color 0.3s;
+    }
+    .container button:hover {
+      background-color: #ffc800;
+      transform: scale(1.05);
+    }
+    #home-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      max-width: auto;
+      margin: auto;
+      padding: 20px;
+      gap: 0px;
+    }
+    #home-screen img {
+      width: 30vw;
+      max-width: 600px;
+      height: auto;
+      transition: width 0.3s ease;
+    }
+    #game-screen {
+      width: 100vw;
+      height: auto;
+      transition: width 0.3s ease;
+      display: none;
+      flex-direction: row;
+      justify-content: space-between;
+      padding: 45px;
+      /* Zoom geral */
+      transform: scale(0.84);
+      transform-origin: top center;
+    }
+    .quiz-area {
+      flex: 2;
+      margin-right: 20px;
+    }
+    .question-box {
+      background-color: #011f4b;
+      padding: 25px;
+      border-radius: 15px;
+      font-size: 1.8em;
+      margin-bottom: 30px;
+      border: 4px solid #d4aa00;
+      box-shadow: 0 0 15px #d4aa00;
+      text-shadow: 2px 2px 4px black;
+    }
+    .option-button {
+      background-color: #011f4b;
+      border: 3px solid #d4aa00;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+      cursor: pointer;
+      font-size: 1.3em;
+      color: white;
+      display: flex;
+      align-items: center;
+      transition: background-color 0.3s;
+    }
+    #question-text, .option-button span, .result {
+        text-shadow: 2px 2px 2px #000;
+    }
+
+    .option-button:hover {
+      background-color: #022b6d;
+    }
+    .option-button.disabled {
+      pointer-events: none;
+      opacity: 0.6;
+    }
+    .option-label {
+      background-color: #d4aa00;
+      color: #011f4b;
+      font-weight: bold;
+      border-radius: 50%;
+      width: 45px;
+      height: 45px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 15px;
+      font-size: 1.3em;
+      box-shadow: 0 0 5px #000;
+    }
+    .sidebar {
+      flex: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background-color: rgba(0, 0, 0, 0.3);
+      border-radius: 15px;
+      padding: 10px;
+      max-height: 300px; /* menor altura */
+    }
+    .sidebar img.avatar {
+      width: 350px;
+    }
+    .lifelines {
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: center;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    .lifelines button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .lifelines button.used img {
+      filter: brightness(0.2);
+      pointer-events: none;
+    }
+    .lifelines button span {
+      font-size: 0.8em;
+      margin-top: 4px;
+      color: white;
+    }
+    .lifelines img {
+      width: 50px;
+    }
+    .hearts {
+      display: flex;
+      gap: 50px;
+      margin: 15px 0;
+      background-color: rgba(0,0,0,0.4);
+      padding: 10px;
+      border-radius: 10px;
+      justify-content: center;
+    }
+    .hearts span {
+        background-color: gold;
+        color: #011f4b;
+        border-radius: 50%;
+        width: 60px;
+        height: 60px;
+        font-size: 2em;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        box-shadow: 0 0 10px #000;
+    }
+    .result {
+      font-size: 1.4em;
+      font-weight: bold;
+      margin-top: 20px;
+      color: #ffeb3b;
+      text-shadow: 1px 1px 2px #000;
+    }
+    .correct {
+      background-color: green !important;
+    }
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.9);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      font-size: 1.8em;
+      z-index: 1000;
+    }
+    .overlay button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 1em;
+    }
+    .tooltip-btn {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .tooltip-text {
+      display: none;
+      position: absolute;
+      bottom: -25px;
+      background-color: rgba(0,0,0,0.8);
+      color: white;
+      padding: 5px 10px;
+      border-radius: 5px;
+      font-size: 0.75em;
+      white-space: nowrap;
+      pointer-events: none;
+      z-index: 10;
+    }
+    .tooltip-btn:hover .tooltip-text {
+      display: block;
+    }
+  .right-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 10px;
+  }
+  .maju-container {
+    margin-top: -65px; /* ajuste fino se necessário */
+    margin-right: 20px;
+  }
+  .avatar-maju {
+    width: 350px;
+  }
+  </style>
+</head>
+<body>
+  <!-- Tela inicial -->
+  <div class="container" id="home-screen">
+    <img src="Imagens/Logo Final.png" alt="Logo-jogo" />
+    <button onclick="startGame()">Jogar</button>
+    <button onclick="window.location.href='config.html'">Configurações</button>
+    <button onclick="exitGame()">Sair</button>
+  </div>
+
+  <!-- Tela de jogo -->
+  <div class="container hidden" id="game-screen">
+    <div class="quiz-area">
+      <div class="question-box" id="question-text">Pergunta aqui...</div>
+      <div id="options-container"></div>
+      <div class="result" id="result-text"></div>
+    </div>
+
+    <div class="right-panel">
+
+      <div class="sidebar">
+        <div class="lifelines">
+          <button id="btn-focais" class="tooltip-btn">
+            <img src="Imagens/Pontos Focais.png" alt="Pontos Focais"/>
+            <span class="tooltip-text">Pontos Focais</span>
+          </button>
+          <button id="btn-lider" class="tooltip-btn">
+            <img src="Imagens/Lider.png" alt="Líder"/>
+            <span class="tooltip-text">Líder</span>
+          </button>
+          <button id="btn-dica" class="tooltip-btn">
+            <img src="Imagens/Dica de Ouro.png" alt="Dica de Ouro"/>
+            <span class="tooltip-text">Dica de Ouro</span>
+          </button>
+        </div>
+        <div class="hearts" id="hearts-container">
+          <span>❤️</span><span>❤️</span><span>❤️</span>
+        </div>
+      </div>
+
+      <div class="maju-container">
+        <img src="Imagens/Maju.png" class="avatar-maju" alt="Personagem" />
+      </div>
+      
+    </div>
+
+
+  </div>
+
+  <!-- Overlay ajuda / fim de jogo / confirmação -->
+  <div id="overlay" class="overlay hidden">
+    <div id="overlay-content"></div>
+    <div id="overlay-buttons"></div>
+  </div>
+
+  <script>
+    let questions = JSON.parse(localStorage.getItem('customQuestions')) || [
+      { question: "Qual é a capital do Brasil?", options: ["São Paulo", "Rio de Janeiro", "Brasília", "Salvador"], correct: 2 },
+      { question: "Quanto é 7 x 8?", options: ["54", "56", "64", "58"], correct: 1 },
+      { question: "Quem pintou a Mona Lisa?", options: ["Van Gogh", "Leonardo da Vinci", "Michelangelo", "Picasso"], correct: 1 }
+    ];
+
+    let currentQuestion = 0;
+    let lives = 3;
+    let usedFocais = false;
+    let usedLider = false;
+    let usedDica = false;
+    let answered = false;
+
+    function startGame() {
+      document.getElementById('home-screen').classList.add('hidden');
+      const gameScreen = document.getElementById('game-screen');
+      gameScreen.classList.remove('hidden');
+      gameScreen.style.display = 'flex';
+      loadQuestion();
+    }
+
+    function exitGame() {
+      alert("Feche manualmente esta aba do navegador.");
+    }
+
+    function loadQuestion() {
+      answered = false;
+      const q = questions[currentQuestion];
+      document.getElementById('question-text').textContent = q.question;
+      const optionsContainer = document.getElementById('options-container');
+      document.getElementById('result-text').textContent = "";
+      optionsContainer.innerHTML = "";
+
+      const letters = ['A', 'B', 'C', 'D'];
+      q.options.forEach((option, index) => {
+        const btn = document.createElement("div");
+        btn.className = "option-button";
+        btn.onclick = () => confirmAnswer(index);
+
+        const label = document.createElement("div");
+        label.className = "option-label";
+        label.textContent = letters[index];
+
+        const text = document.createElement("span");
+        text.textContent = option;
+
+        btn.appendChild(label);
+        btn.appendChild(text);
+        optionsContainer.appendChild(btn);
+      });
+    }
+
+    function updateHearts() {
+      const hearts = document.getElementById('hearts-container');
+      hearts.innerHTML = '';
+      for (let i = 0; i < lives; i++) {
+        const span = document.createElement('span');
+        span.textContent = "❤️";
+        hearts.appendChild(span);
+      }
+    }
+
+    function confirmAnswer(index) {
+      if (answered) return;
+      showOverlay(`<p>Você tem certeza?</p>`, `<button onclick="closeOverlay();checkAnswer(${index})">Sim</button><button onclick='closeOverlay()'>Não</button>`);
+    }
+
+    function checkAnswer(index) {        
+      if (answered) return;
+      answered = true;
+      const q = questions[currentQuestion];
+      const resultText = document.getElementById('result-text');
+
+      document.querySelectorAll('.option-button').forEach((btn, i) => {
+        btn.classList.add('disabled');
+        if (i === q.correct) btn.classList.add('correct');
+      });
+
+      if (index === q.correct) {
+        resultText.textContent = "✅ Resposta correta!";
+      } else {
+        resultText.textContent = `❌ Resposta errada! A certa era: ${q.options[q.correct]}`;
+        lives--;
+        updateHearts();
+
+        if (lives === 0) {
+          setTimeout(showGameOver, 1000);
+          return;
+        }
+      }
+
+      currentQuestion++;
+      if (currentQuestion < questions.length) {
+        setTimeout(loadQuestion, 2000);
+      } else {
+        setTimeout(showGameWon, 2000);
+      }
+    }
+
+    function showOverlay(content, buttons = '<button onclick="closeOverlay()">Fechar</button>') {
+      document.getElementById('overlay-content').innerHTML = content;
+      document.getElementById('overlay-buttons').innerHTML = buttons;
+      document.getElementById('overlay').classList.remove('hidden');
+    }
+
+    function closeOverlay() {
+      document.getElementById('overlay').classList.add('hidden');
+    }
+
+    function showGameOver() {
+      showOverlay(`<p>Infelizmente você perdeu!</p>`, `<button onclick="location.reload()">Recomeçar</button>`);
+    }
+
+    function showGameWon() {
+      showOverlay(`<p>Fim do jogo!</p><p>Parabéns, vocês realmente sabem os alinhamentos.</p>`, `<button onclick="location.reload()">Finalizar</button>`);
+    }
+
+    document.getElementById('btn-focais').onclick = () => {
+      if (usedFocais) return;
+      usedFocais = true;
+      document.getElementById('btn-focais').classList.add('used');
+      const q = questions[currentQuestion];
+      showOverlay(`Pontuação dos Personagens:<ul><li>Anderson: ${q.options[q.correct]} (96%)</li><li>Elis: ${q.options[q.correct]} (96%)</li><li>Betina: ${q.options[q.correct]} (96%)</li><li>Jenifer: ${q.options[q.correct]} (96%)</li></ul>`);
+    };
+
+    document.getElementById('btn-focais').onclick = () => {
+      if (usedFocais) return;
+      usedFocais = true;
+      document.getElementById('btn-focais').classList.add('used');
+
+      const q = questions[currentQuestion];
+      const totalOptions = q.options.length;
+
+      const focais = ['Anderson', 'Elis', 'Betina', 'Jenifer'];
+      const responses = focais.map(name => {
+        // 75% de chance de acertar
+        const isCorrect = Math.random() < 0.65;
+        const answerIndex = isCorrect ? q.correct : getWrongIndex(q.correct, totalOptions);
+        return `<li>${name}: ${q.options[answerIndex]}</li>`;
+      });
+
+      showOverlay(`Respostas dos Pontos Focais:<ul>${responses.join('')}</ul>`);
+    };
+
+    document.getElementById('btn-lider').onclick = () => {
+      if (usedLider) return;
+      usedLider = true;
+      document.getElementById('btn-lider').classList.add('used');
+
+      const q = questions[currentQuestion];
+      const chosenOption = q.options[q.correct]; // sempre a resposta certa
+
+      showOverlay(`<p>A líder tem certeza que a resposta correta é:</p><p><strong>${chosenOption}</strong></p>`);
+    };
+
+    // Função para pegar um índice incorreto aleatório
+    function getWrongIndex(correctIndex, total) {
+      let index;
+      do {
+        index = Math.floor(Math.random() * total);
+      } while (index === correctIndex);
+      return index;
+    }
+
+    document.getElementById('btn-dica').onclick = () => {
+      if (usedDica) return;
+      usedDica = true;
+      document.getElementById('btn-dica').classList.add('used');
+
+      showOverlay(`
+        <p>Vamos jogar cara ou coroa.<br>Se der cara te dou a resposta certa, se der coroa a errada!</p>
+        <div id="coin-result" style="font-size: 3em; margin: 20px;">☺ou♛</div>
+      `, `<button onclick="launchCoin()">Lançar moeda</button>`);
+    };
+
+    function launchCoin() {
+      const q = questions[currentQuestion];
+      const coinResult = Math.random() < 0.5 ? "cara" : "coroa";
+      const coinEl = document.getElementById("coin-result");
+
+      if (coinResult === "cara") {
+        coinEl.innerHTML = "Cara!<br><small>(Resposta correta)</small>";
+        showOverlay(`
+          <p>☺<br>Deu <strong>cara</strong>!<br>A resposta certa é:</p>
+          <p style="font-size: 1.5em;"><strong>${q.options[q.correct]}</strong></p>
+        `);
+      } else {
+        // Pega uma alternativa errada aleatória
+        const wrongIndex = getWrongIndex(q.correct, q.options.length);
+        coinEl.innerHTML = "Coroa!<br><small>(Dica errada)</small>";
+        showOverlay(`
+          <p>♛<br>Deu <strong>coroa</strong>!<br>Aqui vai uma alternativa incorreta:</p>
+          <p style="font-size: 1.5em;"><strong>${q.options[wrongIndex]}</strong></p>
+        `);
+      }
+    }
+  </script>
+</body>
+</html>
