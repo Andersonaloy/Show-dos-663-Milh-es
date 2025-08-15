@@ -1,0 +1,93 @@
+/Q/ 1. Qual é a capital da França?
+/R/ Paris
+/T/ Londres
+/T/ Berlim
+/T/ Roma
+/I/ https://oficinadeinverno.com.br/cdn/shop/articles/eiffel-tower-sunrise1.jpg?v=1659494576&width=700
+
+/Q/ 2. Qual é o maior planeta do Sistema Solar?
+/R/ Júpiter
+/T/ Saturno
+/T/ Marte
+/T/ Terra
+/I/ https://upload.wikimedia.org/wikipedia/commons/e/e2/Jupiter.jpg
+
+/Q/ 3. Quem pintou a Mona Lisa?
+/R/ Leonardo da Vinci
+/T/ Michelangelo
+/T/ Rafael
+/T/ Donatello
+
+/Q/ 4. Qual é o elemento químico representado pelo símbolo O?
+/R/ Oxigênio
+/T/ Ouro
+/T/ Ósmio
+/T/ Oxalato
+
+/Q/ 5. Qual é o idioma oficial do Brasil?
+/R/ Português
+/T/ Espanhol
+/T/ Inglês
+/T/ Francês
+
+/Q/ 6. Qual é o rio mais longo do mundo?
+/R/ Nilo
+/T/ Amazonas
+/T/ Yangtzé
+/T/ Mississippi
+
+/Q/ 7. Qual destes países não faz parte da União Europeia?
+/R/ Noruega
+/T/ Alemanha
+/T/ França
+/T/ Itália
+
+/Q/ 8. Quem escreveu “Dom Quixote”?
+/R/ Miguel de Cervantes
+/T/ William Shakespeare
+/T/ Gabriel García Márquez
+/T/ José Saramago
+
+/Q/ 9. Em que ano o homem pisou na Lua pela primeira vez?
+/R/ 1969
+/T/ 1965
+/T/ 1972
+/T/ 1959
+/I/ https://imgsapp.em.com.br/app/noticia_127983242361/2019/07/19/1070843/20190719100729311449u.jpg
+
+/Q/ 10. Qual é a fórmula química da água?
+/R/ H2O
+/T/ CO2
+/T/ O2
+/T/ H2O2
+
+/Q/ 11. Qual cidade é conhecida como “Cidade da Luz”?
+/R/ Paris
+/T/ Londres
+/T/ Nova York
+/T/ Roma
+
+/Q/ 12. Qual é a unidade básica da vida?
+/R/ Célula
+/T/ Átomo
+/T/ Molécula
+/T/ Tecido
+
+/Q/ 13. Qual matemático é famoso por suas leis de movimento e gravitação universal?
+/R/ Isaac Newton
+/T/ Albert Einstein
+/T/ Galileo Galilei
+/T/ Nikola Tesla
+
+/Q/ 14. Qual é a capital da Mongólia?
+/R/ Ulaanbaatar
+/T/ Astana
+/T/ Tashkent
+/T/ Bishkek
+/I/ https://www.toursmongolia.com/uploads/Mongolia_Ulaanbaatar_city_tours.jpg
+
+/Q/ 15. Qual é o nome da partícula subatômica que possui carga elétrica negativa?
+/R/ Elétron
+/T/ Próton
+/T/ Nêutron
+/T/ Fóton
