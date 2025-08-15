@@ -849,7 +849,7 @@
             const scaleX = window.innerWidth / baseWidth;
             const scaleY = window.innerHeight / baseHeight;
             const fatorTela = Math.min(scaleX, scaleY);
-            const limiteMinimo = 0.77;
+            const limiteMinimo = 0.79;
 
             let escalaFinal;
             if (fatorTela < 1) {
@@ -864,4 +864,5 @@
         window.addEventListener('load', ajustarEscala);
     </script>
 </body>
+
 </html>
