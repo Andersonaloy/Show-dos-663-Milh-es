@@ -37,9 +37,15 @@
     }
     #home-screen img { width: 30vw; max-width: 600px; height: auto; transition: width 0.3s ease; }
 
+    /* ---- Tela do jogo ---- */
     #game-screen {
-      width: 100vw; height: auto; transition: width 0.3s ease; display: none;
-      flex-direction: row; justify-content: space-between; padding: 45px;
+      width: 100vw; 
+      height: auto; 
+      transition: width 0.3s ease; 
+      display: none;
+      flex-direction: row; 
+      justify-content: space-between; 
+      padding: 45px;
       /* Zoom geral */
       transform: scale(0.84); transform-origin: top center;
     }
@@ -47,15 +53,23 @@
     .quiz-area { flex: 2; margin-right: 20px; position: relative; }
 
     .question-box {
-      background-color: #011f4b; padding: 25px; border-radius: 15px; font-size: 1.8em;
-      margin-bottom: 30px; border: 4px solid #d4aa00; box-shadow: 0 0 15px #d4aa00;
+      background-color: #011f4b; 
+      padding: 25px; 
+      border-radius: 15px; 
+      font-size: 1.8em;
+      margin-bottom: 30px; 
+      border: 4px solid #d4aa00; 
+      box-shadow: 0 0 15px #d4aa00;
       text-shadow: 2px 2px 4px black;
     }
 
     /* Botão triângulo para abrir imagem */
     #img-toggle {
       margin: -10px auto 20px auto; /* logo abaixo da pergunta */
-      width: 0; height: 0; cursor: pointer; display: none; /* visível só quando houver imagem */
+      width: 0; 
+      height: 0; 
+      cursor: pointer; 
+      display: none; /* visível só quando houver imagem */
       border-left: 25px solid transparent;
       border-right: 25px solid transparent;
       border-top: 30px solid #ffc800; /* triângulo apontando para baixo */
@@ -65,24 +79,59 @@
     #img-toggle:hover { transform: scale(1.05); border-top-color: #ffe066; }
 
     .option-button {
-      background-color: #011f4b; border: 3px solid #d4aa00; border-radius: 12px;
-      padding: 20px; margin-bottom: 20px; cursor: pointer; font-size: 1.3em; color: white;
-      display: flex; align-items: center; transition: background-color 0.3s;
+      background-color: #011f4b; 
+      border: 3px solid #d4aa00; 
+      border-radius: 12px;
+      padding: 20px; 
+      margin-bottom: 20px; 
+      cursor: pointer; 
+      font-size: 1.3em; 
+      color: white;
+      display: flex; 
+      align-items: center; 
+      transition: background-color 0.3s;
     }
+
     #question-text, .option-button span, .result { text-shadow: 2px 2px 2px #000; }
     .option-button:hover { background-color: #022b6d; }
     .option-button.disabled { pointer-events: none; opacity: 0.6; }
     .option-label {
-      background-color: #d4aa00; color: #011f4b; font-weight: bold; border-radius: 50%;
-      width: 45px; height: 45px; display: flex; align-items: center; justify-content: center;
-      margin-right: 15px; font-size: 1.3em; box-shadow: 0 0 5px #000;
+      background-color: #d4aa00; 
+      color: #011f4b; 
+      font-weight: bold; 
+      border-radius: 50%;
+      width: 45px; 
+      height: 45px; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center;
+      margin-right: 15px; 
+      font-size: 1.3em; 
+      box-shadow: 0 0 5px #000;
     }
 
-    .sidebar { flex: none; display: flex; flex-direction: column; align-items: center;
-      background-color: rgba(0, 0, 0, 0.3); border-radius: 15px; padding: 10px; max-height: 300px; }
+    .sidebar { 
+      flex: none; 
+      display: flex; 
+      flex-direction: column; 
+      align-items: center;
+      background-color: rgba(0, 0, 0, 0.3); 
+      border-radius: 15px; 
+      padding: 10px; 
+      max-height: 300px; 
+    }
+
     .sidebar img.avatar { width: 350px; }
 
-    .lifelines { display: flex; flex-direction: row; justify-content: center; align-items: center; gap: 15px; flex-wrap: wrap; }
+    .lifelines { 
+      display: flex; 
+      flex-direction: row; 
+      justify-content: center; 
+      align-items: center; 
+      gap: 15px; 
+      flex-wrap: wrap; 
+    }
+
     .lifelines button { background: none; border: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; }
     .lifelines button.used img { filter: brightness(0.2); pointer-events: none; }
     .lifelines button span { font-size: 0.8em; margin-top: 4px; color: white; }
@@ -98,14 +147,38 @@
 
     /* Overlay genérico existente */
     .overlay {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background-color: rgba(0,0,0,0.9); color: white; display: flex; flex-direction: column;
-      justify-content: center; align-items: center; font-size: 1.8em; z-index: 1000;
+      position: fixed; 
+      top: 0; 
+      left: 0; 
+      width: 100%; 
+      height: 100%;
+      background-color: rgba(0,0,0,0.9); 
+      color: white; 
+      display: flex; 
+      flex-direction: column;
+      justify-content: center; 
+      align-items: center; 
+      font-size: 1.8em; 
+      z-index: 1000;
     }
+
     .overlay button { margin-top: 20px; padding: 10px 20px; font-size: 1em; }
 
     .tooltip-btn { position: relative; display: flex; flex-direction: column; align-items: center; }
-    .tooltip-text { display: none; position: absolute; bottom: -25px; background-color: rgba(0,0,0,0.8); color: white; padding: 5px 10px; border-radius: 5px; font-size: 0.75em; white-space: nowrap; pointer-events: none; z-index: 10; }
+    .tooltip-text { 
+      display: none; 
+      position: absolute; 
+      bottom: -25px; 
+      background-color: rgba(0,0,0,0.8); 
+      color: white; 
+      padding: 5px 10px; 
+      border-radius: 5px; 
+      font-size: 0.75em; 
+      white-space: nowrap; 
+      pointer-events: none; 
+      z-index: 10; 
+    }
+
     .tooltip-btn:hover .tooltip-text { display: block; }
 
     .right-panel { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
@@ -114,24 +187,54 @@
 
     /* === NOVO: Overlay exclusivo da IMAGEM === */
     .img-overlay {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.85);
-      display: flex; align-items: center; justify-content: center;
+      position: fixed; 
+      inset: 0; 
+      background: rgba(0,0,0,0.85);
+      display: flex; 
+      align-items: center; 
+      justify-content: center;
       z-index: 2000; /* acima de tudo */
     }
+
     .img-box {
-      position: relative; max-width: 90vw; max-height: 90vh; background: #0b1b3a; border: 4px solid #d4aa00;
-      border-radius: 16px; padding: 12px; box-shadow: 0 0 20px rgba(0,0,0,.6);
-      display: flex; align-items: center; justify-content: center;
+      position: relative; 
+      max-width: 90vw; 
+      max-height: 90vh; 
+      background: #0b1b3a; 
+      border: 4px solid #d4aa00;
+      border-radius: 16px; 
+      padding: 12px; 
+      box-shadow: 0 0 20px rgba(0,0,0,.6);
+      display: flex; 
+      align-items: center; 
+      justify-content: center;
     }
+
     .img-box img, .img-box iframe, .img-box picture, .img-box video {
-      max-width: 88vw; max-height: 82vh; border-radius: 10px; display: block;
+      max-width: 88vw; 
+      max-height: 82vh; 
+      border-radius: 10px; 
+      display: block;
     }
+
     .close-img {
-      position: absolute; top: -14px; right: -14px; width: 42px; height: 42px; border-radius: 50%;
-      border: 3px solid #d4aa00; background: #ff3b3b; color: #fff; font-weight: bold; font-size: 1.2em;
-      cursor: pointer; box-shadow: 0 0 10px rgba(0,0,0,.7);
+      position: absolute; 
+      top: -14px; 
+      right: -14px; 
+      width: 42px; 
+      height: 42px; 
+      border-radius: 50%;
+      border: 3px solid #d4aa00; 
+      background: #ff3b3b; 
+      color: #fff; 
+      font-weight: bold; 
+      font-size: 1.2em;
+      cursor: pointer; 
+      box-shadow: 0 0 10px rgba(0,0,0,.7);
     }
+
     .close-img:hover { filter: brightness(1.1); }
+
   </style>
 </head>
 <body>
@@ -141,7 +244,8 @@
   <!-- Tela inicial -->
   <div class="container" id="home-screen">
     <img src="Imagens/Logo Final.png" alt="Logo-jogo" />
-    <button onclick="startGame()">Jogar</button>
+    <button onclick="startGame()">Solo</button>
+    <button onclick="window.location.href='competitivo.html'">Competitivo</button>
     <button onclick="window.location.href='config.html'">Configurações</button>
     <button onclick="exitGame()">Sair</button>
   </div>
@@ -340,7 +444,7 @@
     document.getElementById('btn-focais').onclick = () => {
       if (usedFocais) return; usedFocais = true; document.getElementById('btn-focais').classList.add('used');
       const q = questions[currentQuestion]; const totalOptions = q.options.length;
-      const focais = ['Anderson', 'Elis', 'Betina', 'Jenifer'];
+      const focais = ['Anderson', 'Elis', 'Betina'];
       const responses = focais.map(name => {
         const isCorrect = Math.random() < 0.65;
         const answerIndex = isCorrect ? q.correct : getWrongIndex(q.correct, totalOptions);
