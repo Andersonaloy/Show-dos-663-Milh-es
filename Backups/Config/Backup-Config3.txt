@@ -1,0 +1,104 @@
+html
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Configurações - Show do Milhão</title>
+  <style>
+    body { font-family: sans-serif; background-color: #022b6d; color: white; padding: 20px; }
+    h1 { font-family: 'Luckiest Guy', cursive; font-size: 2em; text-align: center; }
+    textarea { width: 100%; height: 460px; font-size: 1em; padding: 10px; margin-top: 20px; resize: vertical; border-radius: 10px; border: none; }
+    button { display: block; margin: 30px auto 0; padding: 15px 30px; font-size: 1.2em; background-color: #ffc800; color: #011f4b; font-weight: bold; border: none; border-radius: 10px; cursor: pointer; }
+    button:hover { background-color: #ffd900; }
+    .error { color: red; font-weight: bold; text-align: center; margin-top: 15px; }
+    pre { white-space: pre-wrap; background: rgba(0,0,0,.25); padding: 12px; border-radius: 8px; }
+  </style>
+</head>
+<body>
+  <h1>Configurar Perguntas</h1>
+
+  <p>Escreva suas perguntas abaixo seguindo este padrão (agora com imagem opcional):</p>
+  <pre>
+/Q/ Qual é a capital da França?
+/R/ Paris
+/T/ Londres
+/T/ Berlim
+/T/ Roma
+/I/ https://exemplo.com/paris.jpg
+
+Observações:
+- Cada pergunta deve ter: 1 linha /Q/, 1 linha /R/ e 3 linhas /T/.
+- A imagem é <strong>opcional</strong> e aceita UMA linha /I/ por pergunta.
+- Em /I/ você pode escrever:
+  • Apenas um URL (http/https ou data:), por ex.: /I/ https://site.com/img.png
+  • OU HTML completo, por ex.: /I/ &lt;img src="https://site.com/img.png" alt=".." /&gt;
+  • Também funciona com &lt;picture&gt;, &lt;iframe&gt; (se precisar) ou &lt;video&gt;.
+- A imagem aparecerá em uma <em>caixa sobreposta</em> no jogo, aberta ao clicar no triângulo abaixo da pergunta.
+  </pre>
+
+  <textarea id="question-input" placeholder="Cole ou escreva suas perguntas aqui..."></textarea>
+
+  <div id="error-msg" class="error"></div>
+
+  <button onclick="saveQuestions()">Salvar</button>
+
+  <script>
+    function saveQuestions() {
+      const input = document.getElementById('question-input').value.trim();
+      const lines = input.split('\n').map(line => line.trim()).filter(line => line !== "");
+
+      const questions = [];
+      let currentQuestion = null;
+      let errorMsg = "";
+
+      const pushIfReady = () => {
+        if (currentQuestion) { questions.push(currentQuestion); currentQuestion = null; }
+      };
+
+      lines.forEach(line => {
+        if (line.startsWith('/Q/')) {
+          // inicia uma nova pergunta
+          pushIfReady();
+          currentQuestion = { question: line.replace('/Q/', '').trim(), correct: null, options: [], imageHTML: null };
+        } else if (line.startsWith('/R/')) {
+          if (currentQuestion) { currentQuestion.correct = line.replace('/R/', '').trim(); }
+        } else if (line.startsWith('/T/')) {
+          if (currentQuestion) { currentQuestion.options.push(line.replace('/T/', '').trim()); }
+        } else if (line.startsWith('/I/')) {
+          if (currentQuestion) { currentQuestion.imageHTML = line.replace('/I/', '').trim(); }
+        }
+      });
+
+      // adiciona a última pergunta, se existir
+      pushIfReady();
+
+      // Validação
+      if (questions.length < 1) {
+        errorMsg = "Você deve cadastrar pelo menos 1 pergunta (/Q/).";
+      } else {
+        for (let i = 0; i < questions.length; i++) {
+          const q = questions[i];
+          if (!q.question || !q.correct || q.options.length !== 3) {
+            errorMsg = `Erro na pergunta ${i + 1}: ela deve ter 1 /R/ e 3 /T/.`;
+            break;
+          }
+        }
+      }
+
+      if (errorMsg) { document.getElementById('error-msg').textContent = errorMsg; return; }
+
+      // Monta estrutura final para o jogo
+      const formatted = questions.map(q => {
+        const allOptions = [...q.options];
+        const correctIndex = Math.floor(Math.random() * 4);
+        allOptions.splice(correctIndex, 0, q.correct);
+
+        return { question: q.question, options: allOptions, correct: correctIndex, imageHTML: q.imageHTML || null };
+      });
+
+      localStorage.setItem('customQuestions', JSON.stringify(formatted));
+      window.location.href = "index.html";
+    }
+  </script>
+</body>
+</html>

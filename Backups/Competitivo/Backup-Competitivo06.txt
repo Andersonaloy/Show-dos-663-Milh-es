@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Show do Milhão - Multijogador</title>
+    <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap" rel="stylesheet"/>
+    <style>
+        body {
+            font-family: 'Luckiest Guy', cursive;
+            text-align: center;
+            background: linear-gradient(120deg, #025935, #011f4b);
+            color: white;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+        .hidden { display: none !important; }
+        .container button {
+            background-color: #d4aa00;
+            border: none;
+            padding: 15px 30px;
+            margin: 15px;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #011f4b;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.3s;
+        }
+        .container button:hover {
+            background-color: #ffc800;
+            transform: scale(1.05);
+        }
+
+        /* ---- Tela de cadastro de jogadores ---- */
+        #player-screen h2 { margin-bottom: 10px; }
+        .player-input {
+            padding: 10px;
+            font-size: 1.2em;
+            margin: 5px;
+            border-radius: 8px;
+            border: none;
+            width: 280px;
+        }
+        #player-list {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* ---- Tela do jogo ---- */
+        #game-screen {
+        width: 100vw; 
+        height: auto; 
+        transition: width 0.3s ease; 
+        display: none;
+        flex-direction: row; 
+        justify-content: space-between; 
+        padding: 45px;
+        /* Zoom geral */
+        transform: scale(0.84); transform-origin: top center;
+        }
+
+        .quiz-area { flex: 2; margin-right: 20px; position: relative; }
+        
+        .question-box {
+            background-color: #011f4b;
+            padding: 25px;
+            border-radius: 15px;
+            font-size: 1.8em;
+            margin-bottom: 30px;
+            border: 4px solid #d4aa00;
+            box-shadow: 0 0 15px #d4aa00;
+            text-shadow: 2px 2px 4px black;
+        }
+
+        /* Triângulo para abrir imagem */
+        #img-toggle {
+            margin: -10px auto 20px auto;
+            width: 0;
+            height: 0;
+            cursor: pointer;
+            display: none;
+            border-left: 25px solid transparent;
+            border-right: 25px solid transparent;
+            border-top: 30px solid #ffc800;
+            filter: drop-shadow(0 2px 2px rgba(0,0,0,0.6));
+            transition: transform .2s ease, border-top-color .2s ease;
+        }
+        #img-toggle:hover { transform: scale(1.05); border-top-color: #ffe066; }
+
+        .option-button {
+            background-color: #011f4b;
+            border: 3px solid #d4aa00;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            cursor: default;
+            font-size: 1.3em;
+            color: white;
+            display: flex;
+            align-items: center;
+            transition: background-color 0.3s;
+        }
+        
+        #question-text, .option-button span, .result { text-shadow: 2px 2px 2px #000; }
+        .option-button:hover { background-color: #011f4b; }
+        .option-button.disabled { pointer-events: none; opacity: 0.6; }
+        .option-label {
+            background-color: #d4aa00;
+            color: #011f4b;
+            font-weight: bold;
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 1.3em;
+            box-shadow: 0 0 5px #000;
+        }
+
+        .sidebar {
+            flex: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            padding: 10px;
+            max-height: 300px;
+        }
+
+        .sidebar img.avatar { width: 350px; }
+
+        .lifelines {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .lifelines button { background: none; border: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; }
+        .lifelines button.used img { filter: brightness(0.2); pointer-events: none; }
+        .lifelines button span { font-size: 0.8em; margin-top: 4px; color: white; }
+        #btn-focais img { width: 80px; }
+        #btn-lider img { width: 125px; }
+        #btn-dica img { width: 110px; }
+
+        .result { font-size: 1.4em; font-weight: bold; margin-top: 20px; color: #ffeb3b; text-shadow: 1px 1px 2px #000; }
+        .correct { background-color: green !important; }
+
+
+        /* Overlay genérico */
+        .overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.9);
+            color: white;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            font-size: 1.8em; z-index: 1000;
+        }
+        
+        .overlay button { margin-top: 20px; padding: 10px 20px; font-size: 1em; }
+
+        .tooltip-btn { position: relative; display: flex; flex-direction: column; align-items: center; }
+        .tooltip-text {
+            display: none;
+            position: absolute;
+            bottom: -25px;
+            background-color: rgba(0,0,0,0.8);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.75em;
+            white-space: nowrap;
+            pointer-events: none;
+            z-index: 10;
+        }
+        .tooltip-btn:hover .tooltip-text { display: block; }
+
+        .right-panel { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
+        .maju-container { margin-top: -65px; margin-right: 20px; }
+        .avatar-maju { width: 350px; }
+
+        /* Overlay exclusivo para imagem */
+        .img-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.85);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+        .img-box {
+            position: relative;
+            max-width: 90vw;
+            max-height: 90vh;
+            background: #0b1b3a;
+            border: 4px solid #d4aa00;
+            border-radius: 16px;
+            padding: 12px;
+            box-shadow: 0 0 20px rgba(0,0,0,.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .img-box img, .img-box iframe, .img-box picture, .img-box video {
+            max-width: 88vw;
+            max-height: 82vh;
+            border-radius: 10px;
+            display: block;
+        }
+        .close-img {
+            position: absolute;
+            top: -14px;
+            right: -14px;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            border: 3px solid #d4aa00;
+            background: #ff3b3b;
+            color: #fff;
+            font-weight: bold;
+            font-size: 1.2em;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(0,0,0,.7);
+        }
+        .close-img:hover { filter: brightness(1.1); }
+
+        .jogador-item {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+            gap: 12px;
+        }
+        .jogador-nome {
+            flex: 1;
+            text-align: left;
+            font-size: 0.9em;
+        }
+        .resposta-btn {
+            background-color: #d4aa00;
+            border: none;
+            padding: 10px 14px;
+            font-size: 1em;
+            cursor: pointer;
+            border-radius: 8px;
+            margin-left: 6px;
+            color: #011f4b;
+            font-weight: bold;
+        }
+        .resposta-btn:hover { transform: scale(1.05); }
+        .resposta-btn.selecionado {
+            background-color: green;
+            color: white;
+        }
+
+        #resposta-lista {
+            max-height: 60vh; /* altura máxima relativa à tela */
+            overflow-y: auto; /* ativa rolagem vertical */
+            padding-right: 10px; /* espaço para não colar na barra de rolagem */
+        }
+
+        #resposta-lista::-webkit-scrollbar {
+            width: 8px;
+        }
+        #resposta-lista::-webkit-scrollbar-thumb {
+            background: #d4aa00;
+            border-radius: 4px;
+        }
+
+    </style>
+</head>
+<body>
+    <audio id="musica" src="Sons/musica.mp3" preload="auto"></audio>
+    <audio id="venceu-som" src="Sons/Venceu.mp3" preload="auto"></audio>
+
+    <!-- Tela de cadastro de jogadores -->
+    <div class="container" id="player-screen">
+        <h2>Cadastro de Jogadores</h2>
+        <div id="player-list">
+            <input type="text" placeholder="Nome do jogador 1" class="player-input">
+            <input type="text" placeholder="Nome do jogador 2" class="player-input">
+            <input type="text" placeholder="Nome do jogador 3" class="player-input">
+        </div>
+        <button onclick="addPlayerField()">+ Adicionar Jogador</button><br>
+        <button onclick="savePlayers()">Salvar</button>
+        <button onclick="window.location.href='index.html'">Voltar</button>
+    </div>
+
+    <!-- Tela de jogo -->
+    <div class="container hidden" id="game-screen">
+        <div class="quiz-area">
+            <div class="question-box" id="question-text">Pergunta aqui...</div>
+            <!-- Triângulo para abrir imagem (aparece apenas se a pergunta tiver imagem) -->
+            <div id="img-toggle" title="Abrir imagem da pergunta"></div>
+            <div id="options-container"></div>
+            <button id="btn-responder" onclick="abrirRespostaJogadores()">Responder</button>
+            <div class="result" id="result-text"></div>
+        </div>
+        <div class="right-panel">
+            <div class="sidebar">
+                <div class="lifelines">
+                    <button id="btn-focais" class="tooltip-btn">
+                        <img src="Imagens/Pontos Focais.png" alt="Pontos Focais"/>
+                        <span class="tooltip-text">Pontos Focais</span>
+                    </button>
+                    <button id="btn-lider" class="tooltip-btn">
+                        <img src="Imagens/Lider.png" alt="Líder"/>
+                        <span class="tooltip-text">Líder</span>
+                    </button>
+                    <button id="btn-dica" class="tooltip-btn">
+                        <img src="Imagens/Dica de Ouro.png" alt="Dica de Ouro"/>
+                        <span class="tooltip-text">Dica de Ouro</span>
+                    </button>
+                </div>
+            </div>
+            <div class="maju-container">
+                <img src="Imagens/Maju.png" class="avatar-maju" alt="Personagem" />
+            </div>
+        </div>
+    </div>
+
+    <!-- Overlay para respostas dos jogadores -->
+    <div id="resposta-overlay" class="overlay hidden">
+        <h2>Escolha a resposta de cada jogador</h2>
+        <div id="resposta-lista"></div>
+        <div style="margin-top: 20px;">
+            <button onclick="salvarRespostas()">Salvar respostas</button>
+            <button onclick="fecharRespostaJogadores()">Cancelar</button>
+        </div>
+    </div>
+
+    <!-- Overlay ajuda / fim de jogo / confirmação -->
+    <div id="overlay" class="overlay hidden">
+        <div id="overlay-content"></div>
+        <div id="overlay-buttons"></div>
+    </div>
+
+    <!-- Overlay de IMAGEM -->
+    <div id="image-overlay" class="img-overlay hidden" aria-hidden="true">
+        <div class="img-box" role="dialog" aria-modal="true" aria-label="Imagem da Pergunta">
+            <button class="close-img" onclick="closeImageOverlay()" aria-label="Fechar">×</button>
+            <div id="image-content"></div>
+        </div>
+    </div>
+
+    <script>
+        /* ===================== Estado do jogo ===================== */
+        let players = [];
+        let questions = JSON.parse(localStorage.getItem('customQuestions')) || [
+            { question: "Qual é a capital do Brasil?", options: ["São Paulo", "Rio de Janeiro", "Brasília", "Salvador"], correct: 2, imageHTML: null },
+            { question: "Quanto é 7 x 8?", options: ["54", "56", "64", "58"], correct: 1, imageHTML: null },
+            { question: "Quem pintou a Mona Lisa?", options: ["Van Gogh", "Leonardo da Vinci", "Michelangelo", "Picasso"], correct: 1, imageHTML: null }
+        ];
+        let respostasJogadores = {}; // { nomeJogador: indiceDaResposta }
+        let currentQuestion = 0;
+        let usedFocais = false;
+        let usedLider = false;
+        let usedDica = false;
+        let answered = false;
+        let pontosJogadores = {}; // { nomeJogador: pontos }
+
+        /* ===================== Fluxo de telas ===================== */
+        function openPlayerScreen() {
+            document.getElementById('player-screen').classList.remove('hidden');
+        }
+        function addPlayerField() {
+            const container = document.getElementById('player-list');
+            const input = document.createElement('input');
+            input.type = "text";
+            input.placeholder = `Nome do jogador ${container.querySelectorAll('input').length + 1}`;
+            input.classList.add('player-input');
+            container.appendChild(input);
+        }
+        function savePlayers() {
+            players = Array.from(document.querySelectorAll('.player-input'))
+                .map(inp => inp.value.trim())
+                .filter(name => name !== "");
+            if (players.length < 3) {
+                alert("É necessário cadastrar pelo menos 3 jogadores.");
+                return;
+            }
+            localStorage.setItem('players', JSON.stringify(players));
+            document.getElementById('player-screen').classList.add('hidden');
+            const gameScreen = document.getElementById('game-screen');
+            gameScreen.classList.remove('hidden');
+            gameScreen.style.display = 'flex';
+            currentQuestion = 0;
+            usedFocais = usedLider = usedDica = false;
+            loadQuestion();
+
+            players.forEach(nome => {
+                pontosJogadores[nome] = 0;
+            });
+        }
+
+        /* ===================== Motor do quiz ===================== */
+        function loadQuestion() {
+            const musica = document.getElementById('musica');
+            try {
+                musica.currentTime = 0;
+                musica.play();
+            } catch(e) { /* alguns navegadores bloqueiam autoplay */ }
+            answered = false;
+
+            const q = questions[currentQuestion];
+            document.getElementById('question-text').textContent = q.question;
+            const optionsContainer = document.getElementById('options-container');
+            document.getElementById('result-text').textContent = "";
+            optionsContainer.innerHTML = "";
+
+            // Mostrar/ocultar triângulo de imagem
+            const imgToggle = document.getElementById('img-toggle');
+            if (q.imageHTML && String(q.imageHTML).trim() !== "") {
+                imgToggle.style.display = 'block';
+                imgToggle.onclick = openImageOverlay;
+            } else {
+                imgToggle.style.display = 'none';
+                imgToggle.onclick = null;
+            }
+
+            const letters = ['A', 'B', 'C', 'D'];
+            q.options.forEach((option, index) => {
+                const btn = document.createElement("div");
+                btn.className = "option-button";
+
+                const label = document.createElement("div");
+                label.className = "option-label";
+                label.textContent = letters[index];
+
+                const text = document.createElement("span");
+                text.textContent = option;
+
+                btn.appendChild(label);
+                btn.appendChild(text);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function abrirRespostaJogadores() {
+            const lista = document.getElementById('resposta-lista');
+            lista.innerHTML = '';
+            respostasJogadores = {}; // reset
+
+            players.forEach(nome => {
+                // inicializa como null para sabermos que ainda não respondeu
+                respostasJogadores[nome] = null;
+
+                const item = document.createElement('div');
+                item.className = 'jogador-item';
+
+                const nomeEl = document.createElement('div');
+                nomeEl.className = 'jogador-nome';
+                nomeEl.textContent = nome;
+
+                const opcoes = document.createElement('div');
+
+                ['A', 'B', 'C', 'D'].forEach((letra, idx) => {
+                    const btn = document.createElement('button');
+                    btn.className = 'resposta-btn';
+                    btn.textContent = letra;
+                    btn.setAttribute('data-idx', idx);
+
+                    btn.addEventListener('click', () => {
+                        // desmarca as outras do mesmo jogador e marca a clicada
+                        opcoes.querySelectorAll('.resposta-btn').forEach(b => b.classList.remove('selecionado'));
+                        btn.classList.add('selecionado');
+
+                        // guardar como número (garante tipo correto)
+                        respostasJogadores[nome] = Number(btn.getAttribute('data-idx'));
+                    });
+
+                    opcoes.appendChild(btn);
+                });
+
+                item.appendChild(nomeEl);
+                item.appendChild(opcoes);
+                lista.appendChild(item);
+            });
+
+            document.getElementById('resposta-overlay').classList.remove('hidden');
+        }
+
+        function fecharRespostaJogadores() {
+            document.getElementById('resposta-overlay').classList.add('hidden');
+        }
+
+        function salvarRespostas() {
+            const q = questions[currentQuestion];
+
+            const letters = ['A', 'B', 'C', 'D'];
+            let correctIndex = null;
+            if (typeof q.correct === 'number') {
+                correctIndex = q.correct;
+            } else if (typeof q.correct === 'string') {
+                const up = q.correct.trim().toUpperCase();
+                if (letters.includes(up)) {
+                    correctIndex = letters.indexOf(up);
+                } else {
+                    const found = q.options.findIndex(opt => String(opt).trim().toLowerCase() === q.correct.trim().toLowerCase());
+                    correctIndex = found !== -1 ? found : null;
+                }
+            }
+
+            let resultado = '';
+
+            players.forEach(nome => {
+                const raw = respostasJogadores[nome];
+
+                if (raw === null || raw === undefined) {
+                    resultado += `<div class="player-nao-respondeu">${nome}: ❌ Não respondeu</div>`;
+                    // sem pontos
+                    return;
+                }
+
+                const respostaNum = Number(raw);
+                if (Number.isNaN(respostaNum) || correctIndex === null) {
+                    resultado += `<div>${nome}: ❗ Erro na verificação</div>`;
+                    return;
+                }
+
+                if (respostaNum === correctIndex) {
+                    resultado += `<div class="player-acertou">${nome}: ✅ Acertou +2 pontos</div>`;
+                    pontosJogadores[nome] += 2; // adiciona pontos
+                } else {
+                    resultado += `<div class="player-errou">${nome}: ❌ Errou (Correta: ${q.options[correctIndex]})</div>`;
+                    // sem pontos
+                }
+            });
+
+            document.getElementById('result-text').innerHTML = resultado;
+            fecharRespostaJogadores();
+
+            // Avança de pergunta após pequena pausa
+            currentQuestion++;
+            if (currentQuestion < questions.length) {
+                setTimeout(loadQuestion, 3000);
+            } else {
+                setTimeout(showPontuacoes, 3000); // chama função de pontuação ao final
+            }
+        }
+
+        function showPontuacoes() {
+            // transforma o objeto em array para ordenar
+            const ranking = Object.entries(pontosJogadores)
+                .sort((a,b) => b[1] - a[1]); // do maior para o menor
+
+            let tabelaHTML = `<h2>🏆 Resultado Final 🏆</h2>
+                            <table style="margin: 20px auto; font-size: 1.5em; border-collapse: collapse;">
+                                <tr>
+                                    <th style="padding: 10px; border: 2px solid #d4aa00;">Posição</th>
+                                    <th style="padding: 10px; border: 2px solid #d4aa00;">Jogador</th>
+                                    <th style="padding: 10px; border: 2px solid #d4aa00;">Pontos</th>
+                                </tr>`;
+
+            ranking.forEach((item, idx) => {
+                tabelaHTML += `<tr>
+                    <td style="padding: 10px; border: 2px solid #d4aa00;">${idx + 1}</td>
+                    <td style="padding: 10px; border: 2px solid #d4aa00;">${item[0]}</td>
+                    <td style="padding: 10px; border: 2px solid #d4aa00;">${item[1]}</td>
+                </tr>`;
+            });
+
+            tabelaHTML += `</table>
+                        <button onclick="location.reload()" style="margin-top: 20px; padding: 10px 20px; font-size: 1em;">Jogar Novamente</button>`;
+
+            showOverlay(tabelaHTML, ''); // exibe no overlay
+        }
+
+
+        function confirmAnswer(index) {
+            if (answered) return;
+            showOverlay(
+                `<p>Você tem certeza?</p>`,
+                `<button onclick="closeOverlay();checkAnswer(${index})">Sim</button>
+                <button onclick='closeOverlay()'>Não</button>`
+            );
+        }
+        function checkAnswer(index) {
+            if (answered) return;
+            answered = true;
+            const q = questions[currentQuestion];
+            const resultText = document.getElementById('result-text');
+
+            document.querySelectorAll('.option-button').forEach((btn, i) => {
+                btn.classList.add('disabled');
+                if (i === q.correct) btn.classList.add('correct');
+            });
+
+            if (index === q.correct) {
+                resultText.textContent = "✅ Resposta correta!";
+            } else {
+                resultText.textContent = `❌ Resposta errada! A certa era: ${q.options[q.correct]}`;
+            }
+
+            currentQuestion++;
+            if (currentQuestion < questions.length) {
+                setTimeout(loadQuestion, 2000);
+            } else {
+                setTimeout(showGameWon, 2000);
+            }
+        }
+
+        /* ===================== Overlay genérico ===================== */
+        function showOverlay(content, buttons = '<button onclick="closeOverlay()">Fechar</button>') {
+            document.getElementById('overlay-content').innerHTML = content;
+            document.getElementById('overlay-buttons').innerHTML = buttons;
+            document.getElementById('overlay').classList.remove('hidden');
+        }
+        function closeOverlay() {
+            document.getElementById('overlay').classList.add('hidden');
+        }
+
+        /* ===================== Fim de jogo ===================== */
+        function showGameOver() {
+            showOverlay(
+                `<p>Infelizmente vocês perderam!</p>`,
+                `<button onclick="location.reload()">Recomeçar</button>`
+            );
+        }
+        function showGameWon() {
+            const overlay = document.getElementById('overlay');
+            const overlayContent = document.getElementById('overlay-content');
+            const overlayButtons = document.getElementById('overlay-buttons');
+
+            overlayContent.innerHTML = `
+                <div style="animation: glow 1s ease-in-out infinite alternate; font-size: 2em; color: gold;">🏆 PARABÉNS!!! 🏆</div>
+                <p style="font-size: 1.5em; margin-top: 20px;">Chegaram até o final do nosso Show dos 663 milhões!</p>
+                <p style="font-size: 1.2em; color: #00ffcc;">Demonstraram muito conhecimento! Vocês são verdadeiros campeões!</p>
+            `;
+            overlayButtons.innerHTML = `<button onclick="location.reload()">Jogar Novamente</button>`;
+            overlay.classList.remove('hidden');
+
+            const venceuSom = document.getElementById('venceu-som');
+            try { venceuSom.play(); } catch(e) {}
+
+            // animação glow
+            const style = document.createElement("style");
+            style.textContent = `
+                @keyframes glow {
+                    from { text-shadow: 0 0 10px #fff, 0 0 20px #ff0, 0 0 30px #ff0, 0 0 40px #ff8000; }
+                    to   { text-shadow: 0 0 20px #fff, 0 0 30px #ffff00, 0 0 40px #ffaa00, 0 0 50px #ff8000; }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        /* ===================== Ajudas (Pontos Focais / Líder / Dica) ===================== */
+        document.getElementById('btn-focais').onclick = () => {
+            if (usedFocais) return;
+            usedFocais = true;
+            document.getElementById('btn-focais').classList.add('used');
+
+            const q = questions[currentQuestion];
+            const totalOptions = q.options.length;
+            const focais = ['Anderson', 'Elis', 'Betina', 'Jenifer'];
+            const responses = focais.map(name => {
+                const isCorrect = Math.random() < 0.65;
+                const answerIndex = isCorrect ? q.correct : getWrongIndex(q.correct, totalOptions);
+                return `<li>${name}: ${q.options[answerIndex]}</li>`;
+            }).join('');
+            showOverlay(`Respostas dos Pontos Focais:<ul>${responses}</ul>`);
+        };
+
+        document.getElementById('btn-lider').onclick = () => {
+            if (usedLider) return;
+            usedLider = true;
+            document.getElementById('btn-lider').classList.add('used');
+
+            const q = questions[currentQuestion];
+            const chosenOption = q.options[q.correct];
+            showOverlay(`<p>A líder tem certeza que a resposta correta é:</p><p><strong>${chosenOption}</strong></p>`);
+        };
+
+        function getWrongIndex(correctIndex, total) {
+            let index;
+            do { index = Math.floor(Math.random() * total); } while (index === correctIndex);
+            return index;
+        }
+
+        document.getElementById('btn-dica').onclick = () => {
+            if (usedDica) return;
+            usedDica = true;
+            document.getElementById('btn-dica').classList.add('used');
+
+            showOverlay(
+                `<p>Vamos jogar cara ou coroa.<br>Se der cara te dou a resposta certa, se der coroa a errada!</p>
+                <div id="coin-result" style="font-size: 3em; margin: 20px;">☺ ou ♛</div>`,
+                `<button onclick="launchCoin()">Lançar moeda</button>`
+            );
+        };
+
+        function launchCoin() {
+            const q = questions[currentQuestion];
+            const coinResult = Math.random() < 0.5 ? "cara" : "coroa";
+            const coinEl = document.getElementById("coin-result");
+
+            if (coinResult === "cara") {
+                coinEl.innerHTML = "Cara!<br><small>(Resposta correta)</small>";
+                showOverlay(
+                    `<p>☺<br>Deu <strong>cara</strong>!<br>A resposta certa é:</p>
+                    <p style="font-size: 1.5em;"><strong>${q.options[q.correct]}</strong></p>`
+                );
+            } else {
+                const wrongIndex = getWrongIndex(q.correct, q.options.length);
+                coinEl.innerHTML = "Coroa!<br><small>(Dica errada)</small>";
+                showOverlay(
+                    `<p>♛<br>Deu <strong>coroa</strong>!<br>Aqui vai uma alternativa incorreta:</p>
+                    <p style="font-size: 1.5em;"><strong>${q.options[wrongIndex]}</strong></p>`
+                );
+            }
+        }
+
+        /* ===================== Overlay de imagem ===================== */
+        function openImageOverlay() {
+            const q = questions[currentQuestion];
+            const container = document.getElementById('image-content');
+            container.innerHTML = '';
+
+            let html = (q.imageHTML || '').trim();
+            if (!html) return;
+
+            // Se for apenas URL, converte para <img>
+            const looksLikeURL = /^(https?:\/\/|data:)/i.test(html) && !/[<>]/.test(html);
+            if (looksLikeURL) {
+                html = `<img src="${html}" alt="Imagem da Pergunta" />`;
+            }
+            container.innerHTML = html;
+
+            const imgOverlay = document.getElementById('image-overlay');
+            imgOverlay.classList.remove('hidden');
+            imgOverlay.setAttribute('aria-hidden', 'false');
+        }
+        function closeImageOverlay() {
+            const imgOverlay = document.getElementById('image-overlay');
+            imgOverlay.classList.add('hidden');
+            imgOverlay.setAttribute('aria-hidden', 'true');
+            // opcional: limpar conteúdo
+            // document.getElementById('image-content').innerHTML = '';
+        }
+        // Fechar overlay de imagem com clique fora ou ESC
+        document.getElementById('image-overlay').addEventListener('click', (e) => {
+            if (e.target.id === 'image-overlay') closeImageOverlay();
+        });
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeImageOverlay();
+        });
+
+        /* ===================== Responsividade (zoom) ===================== */
+        function ajustarEscala() {
+            const gameScreen = document.getElementById('game-screen');
+            if (!gameScreen) return;
+
+            const baseWidth = 1920;
+            const baseHeight = 1080;
+            const escalaCSS = 0.84;
+
+            const scaleX = window.innerWidth / baseWidth;
+            const scaleY = window.innerHeight / baseHeight;
+            const fatorTela = Math.min(scaleX, scaleY);
+            const limiteMinimo = 0.80;
+
+            let escalaFinal;
+            if (fatorTela < 1) {
+                escalaFinal = Math.max(escalaCSS * fatorTela, limiteMinimo);
+            } else {
+                escalaFinal = escalaCSS;
+            }
+            gameScreen.style.transform = `scale(${escalaFinal})`;
+            gameScreen.style.transformOrigin = "top center";
+        }
+        window.addEventListener('resize', ajustarEscala);
+        window.addEventListener('load', ajustarEscala);
+    </script>
+</body>
+</html>
