@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Show do Milhão - Início</title>
+  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap" rel="stylesheet"/>
+  <style>
+    body {
+      font-family: 'Luckiest Guy', cursive;
+      text-align: center;
+      background: linear-gradient(120deg, #025935, #011f4b);
+      color: white;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .container button {
+      background-color: #d4aa00;
+      border: none;
+      padding: 15px 30px;
+      margin: 15px;
+      font-size: 1.5em;
+      font-weight: bold;
+      color: #011f4b;
+      border-radius: 15px;
+      cursor: pointer;
+      transition: transform 0.2s, background-color 0.3s;
+    }
+    .container button:hover {
+      background-color: #ffc800;
+      transform: scale(1.05);
+    }
+
+    #home-screen, #start-screen {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    #home-screen img {
+      width: 30vw;
+      max-width: 600px;
+      height: auto;
+      transition: width 0.3s ease;
+    }
+  </style>
+</head>
+<body>
+  <!-- Música de abertura -->
+  <audio id="abertura-musica" src="Sons/Abertura.mp3" preload="auto" loop></audio>
+
+  <!-- Tela de interação inicial -->
+  <div class="container" id="start-screen" style="display: flex;">
+    <h1>Bem-vindo ao Show do Milhão!</h1>
+    <p>Clique no botão abaixo para começar</p>
+    <button onclick="startGame()">Começar</button>
+  </div>
+
+  <!-- Tela inicial do jogo -->
+  <div class="container" id="home-screen">
+    <img src="Imagens/Logo Final.png" alt="Logo-jogo" />
+    <button onclick="window.location.href='solo.html'">Solo</button>
+    <button onclick="window.location.href='competitivo.html'">Competitivo</button>
+    <button onclick="window.location.href='config.html'">Configurações</button>
+    <button onclick="exitGame()">Sair</button>
+  </div>
+
+  <script>
+    const abertura = document.getElementById("abertura-musica");
+
+    function startGame() {
+      // Toca música
+      abertura.volume = 0.7;
+      abertura.play();
+      // Troca telas
+      document.getElementById("start-screen").style.display = "none";
+      document.getElementById("home-screen").style.display = "flex";
+    }
+
+    // Botão sair
+    function exitGame() {
+      window.open('', '_self');
+      window.close();
+      setTimeout(() => {
+        alert("Não foi possível fechar a aba automaticamente. Por favor, feche-a manualmente.");
+      }, 200);
+    }
+  </script>
+</body>
+</html>
