@@ -319,6 +319,9 @@
     let usedDica = false;
     let answered = false;
 
+    // 🔹 flag para saber se é a primeira pergunta
+    let primeiraPergunta = true;
+
     // inicia o jogo automaticamente
     window.addEventListener("load", () => {
       loadQuestion();
@@ -328,13 +331,20 @@
       document.getElementById("start-overlay").style.display = "none";
       const musica = document.getElementById("musica");
       musica.currentTime = 0;
-      musica.play(); // agora funciona pq houve clique
-      loadQuestion();
+      musica.play(); // toca musica logo no clique
+      loadQuestion(); // carrega a primeira pergunta
     }
 
     function loadQuestion() {
       const musica = document.getElementById('musica');
-      musica.currentTime = 0; musica.play();
+
+      // 🔹 só toca automaticamente se NÃO for a primeira pergunta
+      if (!primeiraPergunta) {
+        musica.currentTime = 0;
+        musica.play();
+      } else {
+        primeiraPergunta = false; // depois da primeira, libera as próximas
+      }
 
       answered = false;
       const q = questions[currentQuestion];
