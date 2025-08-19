@@ -42,31 +42,44 @@ Observações:
   <script>
     function saveQuestions() {
       const input = document.getElementById('question-input').value.trim();
-      const lines = input.split('\n').map(line => line.trim()).filter(line => line !== "");
+      const lines = input.split('\n').map(line => line.trim());
 
       const questions = [];
       let currentQuestion = null;
       let errorMsg = "";
+      let collectingQuestion = false; // indica se ainda estamos juntando linhas da pergunta
 
       const pushIfReady = () => {
-        if (currentQuestion) { questions.push(currentQuestion); currentQuestion = null; }
+        if (currentQuestion) { 
+          questions.push(currentQuestion); 
+          currentQuestion = null; 
+        }
       };
 
       lines.forEach(line => {
         if (line.startsWith('/Q/')) {
-          // inicia uma nova pergunta
+          // inicia nova pergunta
           pushIfReady();
+          collectingQuestion = true;
           currentQuestion = { question: line.replace('/Q/', '').trim(), correct: null, options: [], imageHTML: null };
         } else if (line.startsWith('/R/')) {
+          collectingQuestion = false;
           if (currentQuestion) { currentQuestion.correct = line.replace('/R/', '').trim(); }
         } else if (line.startsWith('/T/')) {
+          collectingQuestion = false;
           if (currentQuestion) { currentQuestion.options.push(line.replace('/T/', '').trim()); }
         } else if (line.startsWith('/I/')) {
+          collectingQuestion = false;
           if (currentQuestion) { currentQuestion.imageHTML = line.replace('/I/', '').trim(); }
+        } else {
+          // linha extra → continua na pergunta se ainda estamos coletando
+          if (collectingQuestion && currentQuestion) {
+            currentQuestion.question += "\n" + line;
+          }
         }
       });
 
-      // adiciona a última pergunta, se existir
+      // adiciona última pergunta
       pushIfReady();
 
       // Validação
@@ -82,7 +95,10 @@ Observações:
         }
       }
 
-      if (errorMsg) { document.getElementById('error-msg').textContent = errorMsg; return; }
+      if (errorMsg) { 
+        document.getElementById('error-msg').textContent = errorMsg; 
+        return; 
+      }
 
       // Monta estrutura final para o jogo
       const formatted = questions.map(q => {
@@ -90,7 +106,12 @@ Observações:
         const correctIndex = Math.floor(Math.random() * 4);
         allOptions.splice(correctIndex, 0, q.correct);
 
-        return { question: q.question, options: allOptions, correct: correctIndex, imageHTML: q.imageHTML || null };
+        return { 
+          question: q.question.replace(/\n/g, "<br>"), // <<< aqui convertemos para quebra real
+          options: allOptions, 
+          correct: correctIndex, 
+          imageHTML: q.imageHTML || null 
+        };
       });
 
       localStorage.setItem('customQuestions', JSON.stringify(formatted));
