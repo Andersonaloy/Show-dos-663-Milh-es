@@ -499,12 +499,14 @@
             const optionsWithIndex = q.options.map((opt, i) => ({ text: opt, originalIndex: i }));
             optionsWithIndex.sort(() => Math.random() - 0.5); // embaralha
 
-            // Encontrar nova posição da resposta correta
-            q.correct = optionsWithIndex.findIndex(o => o.originalIndex === q.correct);
+            // Embaralhar opções SEM mexer em q.correct (índice original)
+            q.shuffledOptions = q.options.map((opt, i) => ({ text: opt, originalIndex: i }));
+            q.shuffledOptions.sort(() => Math.random() - 0.5);
+            q.shuffledCorrect = q.shuffledOptions.findIndex(o => o.originalIndex === q.correct);
 
-            // Criar botões das alternativas
+            // Criar botões das alternativas a partir do embaralhado
             const letters = ['A', 'B', 'C', 'D'];
-            optionsWithIndex.forEach((option, index) => {
+            q.shuffledOptions.forEach((option, index) => {
                 const btn = document.createElement("div");
                 btn.className = "option-button";
 
@@ -519,7 +521,9 @@
                 btn.appendChild(text);
                 optionsContainer.appendChild(btn);
             });
-        }
+        };
+
+
 
         function abrirRespostaJogadores() {
             const lista = document.getElementById('resposta-lista');
@@ -575,21 +579,21 @@
             const optionsContainer = document.getElementById('options-container');
             optionsContainer.querySelectorAll('.option-button').forEach((btn, idx) => {
                 btn.classList.add('disabled');
-                if (idx === q.correct) btn.classList.add('correct');
+                if (idx === q.shuffledCorrect) btn.classList.add('correct');
             });
 
             // Regras de pontuação
             if (currentQuestion === questions.length - 1) {
-                // Última pergunta: sempre 3 pontos para quem acertar
+                // Última pergunta: 3 pontos para quem acertar
                 players.forEach(nome => {
-                    if (respostasJogadores[nome] === q.correct) {
+                    if (respostasJogadores[nome] === q.shuffledCorrect) {
                         pontosJogadores[nome] += 3;
                     }
                 });
             } else {
-                // Perguntas normais: 2 pontos ou 1 ponto se usou ajuda
+                // Demais perguntas: 2 ou 1 ponto (se usou ajuda)
                 players.forEach(nome => {
-                    if (respostasJogadores[nome] === q.correct) {
+                    if (respostasJogadores[nome] === q.shuffledCorrect) {
                         pontosJogadores[nome] += ajudaUsadaNaPergunta ? 1 : 2;
                     }
                 });
@@ -713,13 +717,13 @@
 
             document.querySelectorAll('.option-button').forEach((btn, i) => {
                 btn.classList.add('disabled');
-                if (i === q.correct) btn.classList.add('correct');
+                if (i === q.shuffledCorrect) btn.classList.add('correct');
             });
 
-            if (index === q.correct) {
+            if (index === q.shuffledCorrect) {
                 resultText.textContent = "✅ Resposta correta!";
             } else {
-                resultText.textContent = `❌ Resposta errada! A certa era: ${q.options[q.correct]}`;
+                resultText.textContent = `❌ Resposta errada! A certa era: ${q.shuffledOptions[q.shuffledCorrect].text}`;
             }
 
             currentQuestion++;
@@ -759,8 +763,8 @@
             const focais = ['Anderson', 'Elis', 'Betina'];
             const responses = focais.map(name => {
                 const isCorrect = Math.random() < 0.65;
-                const answerIndex = isCorrect ? q.correct : getWrongIndex(q.correct, totalOptions);
-                return `<li>${name}: ${q.options[answerIndex]}</li>`;
+                const answerIndex = isCorrect ? q.shuffledCorrect : getWrongIndex(q.shuffledCorrect, totalOptions);
+                return `<li>${name}: ${q.shuffledOptions[answerIndex].text}</li>`;
             }).join('');
             showOverlay(`Respostas dos Pontos Focais:<ul>${responses}</ul>`);
         };
@@ -779,7 +783,7 @@
             document.getElementById('btn-lider').classList.add('used');
 
             const q = questions[currentQuestion];
-            const chosenOption = q.options[q.correct];
+            const chosenOption = q.shuffledOptions[q.shuffledCorrect].text;
             showOverlay(`<p>A líder tem certeza que a resposta correta é:</p><p><strong>${chosenOption}</strong></p>`);
         };
 
@@ -815,18 +819,12 @@
             const coinEl = document.getElementById("coin-result");
 
             if (coinResult === "cara") {
-                coinEl.innerHTML = "Cara!<br><small>(Resposta correta)</small>";
-                showOverlay(
-                    `<p>☺<br>Deu <strong>cara</strong>!<br>A resposta certa é:</p>
-                    <p style="font-size: 1.5em;"><strong>${q.options[q.correct]}</strong></p>`
-                );
+                showOverlay(`<p>A resposta certa é:</p>
+                <p><strong>${q.shuffledOptions[q.shuffledCorrect].text}</strong></p>`);
             } else {
-                const wrongIndex = getWrongIndex(q.correct, q.options.length);
-                coinEl.innerHTML = "Coroa!<br><small>(Dica errada)</small>";
-                showOverlay(
-                    `<p>♛<br>Deu <strong>coroa</strong>!<br>Aqui vai uma alternativa incorreta:</p>
-                    <p style="font-size: 1.5em;"><strong>${q.options[wrongIndex]}</strong></p>`
-                );
+                const wrongIndex = getWrongIndex(q.shuffledCorrect, q.shuffledOptions.length);
+                showOverlay(`<p>Aqui vai uma alternativa incorreta:</p>
+                <p><strong>${q.shuffledOptions[wrongIndex].text}</strong></p>`);
             }
         }
 
