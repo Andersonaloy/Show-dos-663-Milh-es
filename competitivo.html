@@ -470,11 +470,11 @@
             answered = false;
             const q = questions[currentQuestion];
 
-            document.getElementById('question-text').textContent = q.question;
+            document.getElementById('question-text').innerHTML = q.question;
             const optionsContainer = document.getElementById('options-container');
             optionsContainer.innerHTML = "";
 
-            // Banner "Pergunta Final" se for última pergunta
+            // Banner "Pergunta Final"
             if (currentQuestion === questions.length - 1) {
                 const finalBanner = document.createElement('div');
                 finalBanner.textContent = "🏆 PERGUNTA FINAL 🏆";
@@ -495,9 +495,16 @@
                 imgToggle.onclick = null;
             }
 
-            // Mostrar opções normalmente
+            // 🔀 Embaralhar opções mantendo a correta
+            const optionsWithIndex = q.options.map((opt, i) => ({ text: opt, originalIndex: i }));
+            optionsWithIndex.sort(() => Math.random() - 0.5); // embaralha
+
+            // Encontrar nova posição da resposta correta
+            q.correct = optionsWithIndex.findIndex(o => o.originalIndex === q.correct);
+
+            // Criar botões das alternativas
             const letters = ['A', 'B', 'C', 'D'];
-            q.options.forEach((option, index) => {
+            optionsWithIndex.forEach((option, index) => {
                 const btn = document.createElement("div");
                 btn.className = "option-button";
 
@@ -506,7 +513,7 @@
                 label.textContent = letters[index];
 
                 const text = document.createElement("span");
-                text.textContent = option;
+                text.textContent = option.text;
 
                 btn.appendChild(label);
                 btn.appendChild(text);
@@ -736,6 +743,13 @@
         /* ===================== Ajudas (Pontos Focais / Líder / Dica) ===================== */
         document.getElementById('btn-focais').onclick = () => {
             if (usedFocais) return;
+
+            // 🔒 Bloqueia se for a última pergunta
+            if (currentQuestion === questions.length - 1) {
+                alert("As ajudas não podem ser usadas na pergunta final!");
+                return;
+            }
+
             usedFocais = true;
             ajudaUsadaNaPergunta = true; // 🔹 Marca que houve ajuda
             document.getElementById('btn-focais').classList.add('used');
@@ -753,6 +767,13 @@
 
         document.getElementById('btn-lider').onclick = () => {
             if (usedLider) return;
+
+            // 🔒 Bloqueia se for a última pergunta
+            if (currentQuestion === questions.length - 1) {
+                alert("As ajudas não podem ser usadas na pergunta final!");
+                return;
+            }
+
             usedLider = true;
             ajudaUsadaNaPergunta = true; // 🔹 Marca que houve ajuda
             document.getElementById('btn-lider').classList.add('used');
@@ -770,6 +791,13 @@
 
         document.getElementById('btn-dica').onclick = () => {
             if (usedDica) return;
+
+            // 🔒 Bloqueia se for a última pergunta
+            if (currentQuestion === questions.length - 1) {
+                alert("As ajudas não podem ser usadas na pergunta final!");
+                return;
+            }
+
             usedDica = true;
             ajudaUsadaNaPergunta = true; // 🔹 Marca que houve ajuda
             document.getElementById('btn-dica').classList.add('used');
@@ -849,7 +877,7 @@
             const scaleX = window.innerWidth / baseWidth;
             const scaleY = window.innerHeight / baseHeight;
             const fatorTela = Math.min(scaleX, scaleY);
-            const limiteMinimo = 0.79;
+            const limiteMinimo = 0.77;
 
             let escalaFinal;
             if (fatorTela < 1) {
@@ -864,5 +892,4 @@
         window.addEventListener('load', ajustarEscala);
     </script>
 </body>
-
 </html>
