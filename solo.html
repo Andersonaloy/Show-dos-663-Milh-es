@@ -348,7 +348,7 @@
 
       answered = false;
       const q = questions[currentQuestion];
-      document.getElementById('question-text').textContent = q.question;
+      document.getElementById('question-text').innerHTML = q.question;
       const optionsContainer = document.getElementById('options-container');
       document.getElementById('result-text').textContent = "";
       optionsContainer.innerHTML = "";
